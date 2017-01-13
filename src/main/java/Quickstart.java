@@ -99,7 +99,7 @@ public class Quickstart {
 
         // Prints the number of slides and elements in a sample presentation:
         // https://docs.google.com/presentation/d/1EAYk18WDjIG-zp_0vLm3CsfQh_i8eXc67Jo2O9C6Vuc/edit
-        String presentationId = "1piFaL4ttKNAv6_lkUgJLLSIRSah7blvd8ghqMFEeNnk";
+        String presentationId = "1EAYk18WDjIG-zp_0vLm3CsfQh_i8eXc67Jo2O9C6Vuc";
         Presentation response = service.presentations().get(presentationId).execute();
         List<Page> slides = response.getSlides();
 
