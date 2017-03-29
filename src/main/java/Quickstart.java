@@ -25,6 +25,10 @@ import com.google.api.services.slides.v1.model.Request;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +63,24 @@ public class Quickstart {
 
     static {
         try {
+            //private void initializeProxyAuthenticator() {
+                final String proxyUser = System.getProperty("http.proxyUser");
+                final String proxyPassword = System.getProperty("http.proxyPassword");
+
+                if (proxyUser != null && proxyPassword != null) {
+                    Authenticator.setDefault(
+                            new Authenticator() {
+                                public PasswordAuthentication getPasswordAuthentication() {
+                                    return new PasswordAuthentication(
+                                            proxyUser, proxyPassword.toCharArray()
+                                    );
+                                }
+                            }
+                    );
+                }
+            //}
+
+
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
         } catch (Throwable t) {
@@ -137,7 +159,7 @@ public class Quickstart {
 
     ////////////////////////////////////////////////////////////////
 
-    public void body() throws IOException {
+    public static void body(String templatePresentationId) throws IOException {
         Sheets sheetsService = getSheetsService();
         Drive driveService = getDriveService();
         Slides slidesService = getSlidesService();
@@ -159,7 +181,6 @@ public class Quickstart {
             // Duplicate the template presentation using the Drive API.
             String copyTitle = customerName + " presentation";
             File content = new File().setName(copyTitle);
-            String templatePresentationId = "???";  // ????????????????????
             File presentationFile =
                     driveService.files().copy(templatePresentationId, content).execute();
             String presentationId = presentationFile.getId();
@@ -193,7 +214,7 @@ public class Quickstart {
                     slidesService.presentations().batchUpdate(presentationId, body).execute();
         }
     }
-////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
 
 
     public static void main(String[] args) throws IOException {
@@ -212,6 +233,8 @@ public class Quickstart {
             System.out.printf("- Slide #%s contains %s elements.\n", i + 1,
                     slide.getPageElements().size());
         }
+
+        body(presentationId);
     }
 
 
