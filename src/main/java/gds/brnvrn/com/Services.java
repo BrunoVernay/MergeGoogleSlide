@@ -21,7 +21,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 /**
- * Created by bruno on 4/12/17.
+ *
  */
 public class Services {
     private Credential credential;
