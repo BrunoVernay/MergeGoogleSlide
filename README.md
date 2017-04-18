@@ -11,7 +11,8 @@ Loop:
 
 ### Todo
 
-- The Google Ids for the template slide and the spreadsheet data are hardcoded in the sources.
+- The Google Ids for the template slide and the spreadsheet are hardcoded in the sources.
+- The Spreadsheet headers should be read from the Google Sheet and used by default as field names, with the {{column_header}}. So there would be no need to write a mapping
 
 ## Inspiration
 Not that easy to create one slide per row in a spreadsheet.
