@@ -3,6 +3,10 @@ Merge Google spreadsheet rows in a Google Slide
 
 
 ## What I did
+
+- The Google Ids for the template slide and the spreadsheet are passed as arguments.
+- The Spreadsheet headers are read from the Google Sheet and used as field names, with the {{column_header}}. So there is no need to write an explicit mapping.
+
 I get the objectId of the textElements to replace
 
 Loop:
@@ -11,8 +15,8 @@ Loop:
 
 ### Todo
 
-- The Google Ids for the template slide and the spreadsheet are hardcoded in the sources.
-- The Spreadsheet headers should be read from the Google Sheet and used by default as field names, with the {{column_header}}. So there would be no need to write a mapping
+- Better error management.
+- Timeout is hardcoded, it should be configurable
 
 ## Inspiration
 Not that easy to create one slide per row in a spreadsheet.

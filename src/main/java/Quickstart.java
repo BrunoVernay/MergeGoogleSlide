@@ -1,4 +1,3 @@
-import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
@@ -17,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 
-/*
+/**
+ *
+ *
 Not that easy to create one slide per row in a spreadsheet.
 The example gives one presentation (=file) per row !!! https://developers.google.com/slides/how-tos/merge
 - Problem is that the replaceText act on everything (even on the layouts in the Master slide)
@@ -41,42 +42,50 @@ public class Quickstart {
      */
     private static final List<String> SCOPES = Arrays.asList(
             SlidesScopes.PRESENTATIONS,
-            SheetsScopes.SPREADSHEETS_READONLY,
-            DriveScopes.DRIVE_FILE);
+            SheetsScopes.SPREADSHEETS_READONLY);
 
+
+    private static void testArgs(String[] args) {
+        String msg = Quickstart.class.getSimpleName()+ " PresentationId SpreadsheetId DataRange \n";
+        msg += "For example: " + Quickstart.class.getSimpleName()+ " 19eF9Oo57gzyJmwSm36BrrkGpocCSrtusBt_ckrE3hI4 17VZpeJqviEQVGRNZ0pw8tsjMtWcvEEqfNLb3cRZpwY8 \"Sheet1!A1:H30\" \n";
+        msg += " Use Ids as they appear in the urls: https://docs.google.com/presentation/d/19eF9Oo57gzyJmwSm36BrrkGpocCSrtusBt_ckrE3hI4/edit\n";
+        if (args.length != 3) {
+            System.out.println("Error: "+args[0]);
+            System.err.println("Usage: " + msg);
+            System.exit(1);
+        }
+    }
 
     public static void main(String[] args) throws IOException, GeneralSecurityException {
+
+        testArgs(args);
+
         Services services = new Services(APPLICATION_NAME, SCOPES);
         // Build a new authorized API client service.
         Slides slides = services.getSlidesService();
         Sheets sheets = services.getSheetsService();
-        //Drive drive = services.getDriveService();
 
         // Example https://docs.google.com/presentation/d/1EAYk18WDjIG-zp_0vLm3CsfQh_i8eXc67Jo2O9C6Vuc/edit
         // https://docs.google.com/presentation/d/19eF9Oo57gzyJmwSm36BrrkGpocCSrtusBt_ckrE3hI4/edit
-        String presentationId = "19eF9Oo57gzyJmwSm36BrrkGpocCSrtusBt_ckrE3hI4";
+        String presentationId = args[0]; // "19eF9Oo57gzyJmwSm36BrrkGpocCSrtusBt_ckrE3hI4";
         Presentation presentation = slides.presentations().get(presentationId).execute();
         List<Page> pages = presentation.getSlides();
-        System.out.printf("The presentation contains %s slides:\n", pages.size());
 
         // https://docs.google.com/spreadsheets/d/17VZpeJqviEQVGRNZ0pw8tsjMtWcvEEqfNLb3cRZpwY8/edit
-        String dataSpreadsheetId = "17VZpeJqviEQVGRNZ0pw8tsjMtWcvEEqfNLb3cRZpwY8";
-        String dataRangeNotation = "Sheet1!A2:H30";
+        String dataSpreadsheetId = args[1]; // "17VZpeJqviEQVGRNZ0pw8tsjMtWcvEEqfNLb3cRZpwY8";
+        String dataRangeNotation = args[2]; // "Sheet1!A1:H30";
 
         ValueRange sheetsResponse = sheets.spreadsheets().values().get(dataSpreadsheetId, dataRangeNotation).execute();
         List<List<Object>> values = sheetsResponse.getValues();
 
         Linko linko = new Linko();
-        linko.add("{{customer-name}}", 0);
-        linko.add("{{case-description}}", 4);
-        linko.add("{{url}}", 1);
+        linko.createBridge(values.get(0));
 
         String slideLastId = pages.get(0).getObjectId();
         Page lastPage = pages.get(0);
         for (PageElement pae : lastPage.getPageElements()) {
             String objectId = pae.getObjectId();
             System.out.println(" Oid: " + objectId);
-            //System.out.println(" type: " + pae.getShape().getShapeType());
             TextContent textContent = pae.getShape().getText();
             if (textContent == null) continue;
             for (TextElement te : textContent.getTextElements()) {
@@ -90,9 +99,13 @@ public class Quickstart {
             }
         }
 
-        System.out.printf("The sheet contains %s rows:\n", values.size());
-        int i = 0;
+        int i = -1;
         for (List<Object> row : values) {
+
+            if (i==-1) {             // We skip the headers
+                i=0;
+                continue;
+            }
 
             List<Request> requests = new ArrayList<>();
             requests.add(new Request()
@@ -132,4 +145,5 @@ public class Quickstart {
             i++;
         }
     }
+
 }

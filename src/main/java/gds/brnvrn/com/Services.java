@@ -6,6 +6,8 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -21,9 +23,10 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 
 /**
- *
+ * Facilitate Google Drive API usage
  */
 public class Services {
+    public static final int TIMEOUT = 3;    // in minutes
     private Credential credential;
     private String applicationName;
     private List<String> scopes;
@@ -78,6 +81,18 @@ public class Services {
                 "Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
         return credential;
     }
+
+    private HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer) {
+        return new HttpRequestInitializer() {
+            @Override
+            public void initialize(HttpRequest httpRequest) throws IOException {
+                requestInitializer.initialize(httpRequest);
+                httpRequest.setConnectTimeout(TIMEOUT * 60000);  // 3 minutes connect timeout
+                httpRequest.setReadTimeout(TIMEOUT * 60000);  // 3 minutes read timeout
+            }
+        };
+    }
+
     /**
      * Build and return an authorized Slides API client service.
      *
@@ -85,7 +100,7 @@ public class Services {
      * @throws IOException
      */
     public Slides getSlidesService() throws IOException {
-        return new com.google.api.services.slides.v1.Slides.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+        return new com.google.api.services.slides.v1.Slides.Builder(HTTP_TRANSPORT, JSON_FACTORY, setHttpTimeout(credential))
                 .setApplicationName(applicationName)
                 .build();
     }
@@ -105,7 +120,7 @@ public class Services {
 
     /**
      * Build and return an authorized Drive client service.
-     *
+     *  Require the DriveScopes.DRIVE_FILE scope
      * @return an authorized Drive client service
      * @throws IOException
      */

@@ -30,7 +30,7 @@ public class Linko {
      * @param field
      * @param column
      */
-    public void add(String field, int column) {
+    private void add(String field, int column) {
         link.add(new Linko(field, column));
     }
 
@@ -91,5 +91,20 @@ public class Linko {
             result.put(oldId, l.column);
         }
         return result.entrySet();
+    }
+
+    /**
+     * Create the association: {{column_name}} <-> column_id
+     * From the Spreadsheet itself
+     * @param row first row in the spread sheet
+     */
+    public void createBridge(List<Object> row) {
+        if (row == null) return;
+        for (int i=0; i<row.size(); i++) {
+            if (row.get(i) == null)  continue;
+            String head = row.get(i).toString();
+            if (head.length()>0)
+                add("{{"+ head + "}}",i);
+        }
     }
 }
