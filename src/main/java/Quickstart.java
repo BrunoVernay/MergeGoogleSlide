@@ -86,6 +86,7 @@ public class Quickstart {
         for (PageElement pae : lastPage.getPageElements()) {
             String objectId = pae.getObjectId();
             System.out.println(" Oid: " + objectId);
+            if (pae.getShape() == null) continue;
             TextContent textContent = pae.getShape().getText();
             if (textContent == null) continue;
             for (TextElement te : textContent.getTextElements()) {

@@ -15,6 +15,7 @@ Loop:
 
 ### Todo
 
+- Support Groups (Currently we do not see if shape is in another shape)
 - Better error management.
 - Timeout is hardcoded, it should be configurable
 
